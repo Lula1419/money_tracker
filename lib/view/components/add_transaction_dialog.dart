@@ -22,6 +22,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    
 
     return SizedBox(
       height: 680,
@@ -100,7 +101,24 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
           SizedBox(
             width: 300,
             child: ElevatedButton(
-
+              onPressed: () {
+                // Crear una nueva transacción con los valores correctos
+                final transaction = FinancialTransaction(
+                  id: DateTime.now().millisecondsSinceEpoch, // Genera un id único basado en el tiempo actual
+                  type: type, 
+                  amount: type == TransactionType.expense ? -amount : amount, 
+                  description: description,
+                  date: DateTime.now(), // Usa la fecha actual para la transacción
+                  isExpense: type == TransactionType.expense ? 0 : 1, // Definir si es un gasto
+                );
+                
+                // Añadir la transacción a través del Provider
+                Provider.of<TransactionsProvider>(context, listen: false).addTransaction(transaction);
+                
+                // Cerrar el diálogo después de añadir la transacción
+                Navigator.pop(context);
+              }, 
+              /*
               onPressed: () {
                 //Se pone listen: false, porque el Listen no necesita escuchar ningun evento, solo notificar
                 //lo que sucede con el botón
@@ -110,7 +128,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                   description: description);
                 Provider.of<TransactionsProvider>(context, listen: false).addTransaction(transaction);
                 Navigator.pop(context);
-              }, 
+              },
+              */
+
               style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
               child: const Text(
                 'Add',
