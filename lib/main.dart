@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:money_tacker/controller/transaction_provider.dart';
-import 'package:money_tacker/view/home_creen.dart';
+import 'package:money_tacker/view/home_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -13,10 +13,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => TransactionsProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TransactionsProvider()),
+      ],
       child: MaterialApp(
-        
         title: 'Money Tracker',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
         ),
         home: const HomeScreen(),
       ),
-    );
+    );  
   }
 }
 

@@ -23,7 +23,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     
-
     return SizedBox(
       height: 680,
       width: double.infinity,
@@ -101,7 +100,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
           SizedBox(
             width: 300,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Crear una nueva transacción con los valores correctos
                 final transaction = FinancialTransaction(
                   id: DateTime.now().millisecondsSinceEpoch, // Genera un id único basado en el tiempo actual
@@ -113,24 +112,14 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 );
                 
                 // Añadir la transacción a través del Provider
-                Provider.of<TransactionsProvider>(context, listen: false).addTransaction(transaction);
+                await Provider.of<TransactionsProvider>(context, listen: false).addTransaction(transaction);
                 
                 // Cerrar el diálogo después de añadir la transacción
-                Navigator.pop(context);
+                if (mounted){
+                  Navigator.of(context).pop();
+                }
               }, 
-              /*
-              onPressed: () {
-                //Se pone listen: false, porque el Listen no necesita escuchar ningun evento, solo notificar
-                //lo que sucede con el botón
-                final transaction = Transaction(
-                  type: type, 
-                  amount: type == TransactionType.expense ? -amount : amount, 
-                  description: description);
-                Provider.of<TransactionsProvider>(context, listen: false).addTransaction(transaction);
-                Navigator.pop(context);
-              },
-              */
-
+ 
               style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
               child: const Text(
                 'Add',

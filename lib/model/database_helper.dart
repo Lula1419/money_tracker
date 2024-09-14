@@ -52,11 +52,26 @@ class DatabaseHelper {
   Future<List<FinancialTransaction>> getTransactions() async {
     final db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query('transactions');
-    print('Raw data from database: $maps'); // Para depuración
     return List.generate(maps.length, (i) {
-      print('Converting map: ${maps[i]}'); // Para depuración
       return FinancialTransaction.fromMap(maps[i]);
   });}
 
+Future<int> updateTransaction(FinancialTransaction transaction) async {
+    final db = await instance.database;
+    return await db.update(
+      'transactions',
+      transaction.toMap(),
+      where: 'id = ?',
+      whereArgs: [transaction.id],
+    );
+  }
 
+  Future<int> deleteTransaction(int id) async {
+  final db = await instance.database;
+  return await db.delete(
+    'transactions',
+    where: 'id = ?',
+    whereArgs: [id],
+  );
+}
 }

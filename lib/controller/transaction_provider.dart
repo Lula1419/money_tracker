@@ -9,7 +9,7 @@ class TransactionsProvider extends ChangeNotifier{
   final List<FinancialTransaction> _transactions = [];
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
-  List<FinancialTransaction> get transactions => _transactions;
+  List<FinancialTransaction> get transactions => List.unmodifiable(_transactions);
 
   TransactionsProvider(){
     _loadTransactions();
@@ -18,67 +18,76 @@ class TransactionsProvider extends ChangeNotifier{
   Future<void> _loadTransactions() async{
     final loadedTransactions = await _dbHelper.getTransactions();
     _transactions.clear();
-    _transactions.addAll(loadedTransactions as Iterable<FinancialTransaction>);
+    _transactions.addAll(loadedTransactions);
     notifyListeners();
   }
 
-  Future<void> addTransactions(FinancialTransaction transaction) async {
+  Future<void> addTransaction(FinancialTransaction transaction) async {
     await _dbHelper.insertTransaction(transaction);
-    await _loadTransactions();
-    notifyListeners();
-  }
-
-  void addTransaction(FinancialTransaction transaction) {
     _transactions.add(transaction);
-    notifyListeners(); // Notificar a los listeners que los datos han cambiado
-  }
-
-
-  Future<void> updateTransaction(FinancialTransaction transaction) async{
-    /*Implementar el metodo updateTransaction en database_helper 
-    await _dbHelper.updateTransaction(transacion);
-    await _loadTransactions();
     notifyListeners();
-    */ 
   }
 
-  Future<void> deleteTransaction(int id) async{
-    /*Implementar el metodo deleteTransaction en database_helper 
-    await _dbHelper.deleteTransaction(transacion);
-    await _loadTransactions();
-    notifyListeners();
-    */ 
+  Future<void> updateTransaction(FinancialTransaction updatedTransaction) async {
+    final index = _transactions.indexWhere((t) => t.id == updatedTransaction.id);
+    if (index != -1) {
+      _transactions[index] = updatedTransaction;
+      await _dbHelper.updateTransaction(updatedTransaction);
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteTransaction(int? id) async {
+    if (id == null) {
+      throw ArgumentError('Transaction ID cannot be null');
+    }else{
+      _transactions.removeWhere((t) => t.id == id);
+      await _dbHelper.deleteTransaction(id);
+      notifyListeners();
+    }
   }
 
 
-  /*
-  final List<Transaction> _transactions =[
-    Transaction(type: TransactionType.income, 
-                amount: 1000.00, 
-                description: 'Salary'),
-   
-    Transaction(type: TransactionType.expense, 
-              amount: -500.00, 
-              description: 'Rent'),
-  ];
-
-  List<Transaction> get transactions{
-    return _transactions;
+ Future<void> updateTransactionData({
+    required int? id,
+    required String description,
+    required double amount,
+    required TransactionType type,
+    required DateTime date,
+    required int isExpense,
+  }) async {
+    final updatedTransaction = FinancialTransaction(
+      id: id,
+      type: type,
+      amount: amount,
+      description: description,
+      date: date,
+      isExpense: isExpense,
+    );
+    
+    await _dbHelper.updateTransaction(updatedTransaction);
+    
+    final index = _transactions.indexWhere((t) => t.id == id);
+    if (index != -1){
+      _transactions[index] = updatedTransaction;
+      notifyListeners();
+    }
   }
-  */
 
   double getTotalIncomes(){
     return _transactions
       .where((transaction) => transaction.type == TransactionType.income)
       .map((transaction) => transaction.amount)
       .fold(0, (a,b) => a + b);
+      
   }
 
   double getTotalExpenses(){
     return _transactions
-      .where((transaction) => transaction.type == TransactionType.expense)
+      .where((transaction) => transaction.type == TransactionType.expense) 
       .map((transaction) => transaction.amount)
       .fold(0, (a,b) => a + b);
+      
   }
 
   double getBalance(){

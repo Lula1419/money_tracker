@@ -1,8 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:money_tacker/controller/transaction_provider.dart';
-import 'package:money_tacker/view/home_creen.dart';
-import 'package:flutter/src/painting/text_style.dart';
 import 'package:money_tacker/view/widgets/header_card.dart';
 import 'package:provider/provider.dart';
 
@@ -21,8 +19,7 @@ class HomeHeader extends StatelessWidget {
 
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      
+    return SizedBox(
       width: double.infinity,
       child: Column(
         children: [
@@ -65,11 +62,6 @@ class HomeHeader extends StatelessWidget {
               )
             ]),
           )
-
-
-
-
-          
         ],
       )     
     );
